@@ -11,10 +11,13 @@ export default class Player {
     jumpHeight:number = -25
     width: number = 50
     height: number = 50
+    dead:boolean = false
     ctx:CanvasRenderingContext2D
+    canvas:HTMLCanvasElement
     
-    constructor(ctx:CanvasRenderingContext2D) {
+    constructor(canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D) {
         this.ctx = ctx
+        this.canvas = canvas
     }
 
     draw() {
@@ -27,9 +30,24 @@ export default class Player {
         )
     }
 
-    update() {
+    update(platforms:Array<Platform>) {
         this.gravity()
         this.y += this.velY
+
+        for (let i=0;i<platforms.length;i++) {
+            if (
+                this.y + this.height >= platforms[i].y &&
+                this.x + this.width >= platforms[i].x &&
+                platforms[i].y + platforms[i].height >= this.y &&
+                platforms[i].x + platforms[i].width >= this.x
+            ) {
+                this.y = platforms[i].y - this.height
+            }
+        }
+
+        if (this.y > this.canvas.height) {
+            this.dead = true
+        }
     }
 
     gravity() {
