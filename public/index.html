@@ -4,8 +4,25 @@
     <meta charset="utf-8" />
     <title>ts-wp-starter</title>
     <script src="https://unpkg.com/lodash@4.17.20"></script>
+    <style>
+      .container {
+          -ms-overflow-style: none;  /* Internet Explorer 10+ */
+          scrollbar-width: none;  /* Firefox */
+      }
+      .container::-webkit-scrollbar { 
+          display: none;  /* Safari and Chrome */
+      }
+      body {
+        margin:0;
+        padding:0;
+      }
+      * {
+        box-sizing: border-box;
+        position: relative;
+      }
+    </style>
   </head>
-  <body>
+  <body class="container">
     <script src="bundle.js"></script>
   </body>
 </html>
