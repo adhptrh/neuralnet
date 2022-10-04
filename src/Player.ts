@@ -1,3 +1,5 @@
+import Platform from "./Platform"
+
 export default class Player {
     color: string = "#000"
     x: number = 0

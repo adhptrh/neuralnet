@@ -1,9 +1,11 @@
+import Platform from "./Platform"
 import Player from "./Player"
 
 export default class Game {
     canvas:HTMLCanvasElement = document.createElement("canvas")
     ctx:CanvasRenderingContext2D
     bots:Array<Player> = []
+    platforms:Array<Platform> = []
     instance:Game
 
     constructor() {
@@ -11,6 +13,7 @@ export default class Game {
         this.canvas.height = window.innerHeight
         this.ctx = this.canvas.getContext("2d")
         this.bots.push(new Player(this.ctx))
+        this.platforms.push(new Platform(this.ctx))
     }
 
     show() {
@@ -19,20 +22,36 @@ export default class Game {
 
     loop() {
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
-        this.updatePlayer()
-        this.renderPlayer()
+
+        this.updateBots(this.platforms)
+        this.updatePlatforms()
+
+        this.renderPlatforms()
+        this.renderBots()
         requestAnimationFrame(()=>this.loop())
     }
 
-    renderPlayer() {
+    updateBots(platforms:Array<Platform>) {
+        for (let i=0;i<this.bots.length;i++) {
+            this.bots[i].update()
+        }
+    }
+
+    updatePlatforms() {
+        for (let i=0;i<this.platforms.length;i++) {
+            this.platforms[i].update()
+        }
+    }
+
+    renderBots() {
         for (let i=0;i<this.bots.length;i++) {
             this.bots[i].draw()
         }
     }
 
-    updatePlayer() {
-        for (let i=0;i<this.bots.length;i++) {
-            this.bots[i].update()
+    renderPlatforms() {
+        for (let i=0;i<this.platforms.length;i++) {
+            this.platforms[i].draw()
         }
     }
 }
