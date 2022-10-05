@@ -7,6 +7,9 @@ export default class Game {
     bots:Array<Player> = []
     platforms:Array<Platform> = []
     i:number = 0
+    gen:number = 0
+    lastPlatformPos: number = 0
+    avaliablePlatformPos: Array<number> = [0,100,200,300,400]
 
     constructor() {
         this.canvas.width = window.innerWidth
@@ -19,12 +22,64 @@ export default class Game {
             this.platforms.push(platform)
         }
 
-        for (let i=0;i<1;i++) {
+        for (let i=0;i<300;i++) {
             let player = new Player(this.canvas,this.ctx)
             player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
             player.y = this.platforms[2].y - player.height
             this.bots.push(player)
         }
+    }
+
+    newGen() {
+        this.gen++
+        for (let i=0;i<this.bots.length-1;i++) {
+            for (let ii=i+1;ii<this.bots.length-i;ii++) {
+                if (this.bots[ii].fit > this.bots[i].fit) {
+                    let temp = this.bots[i]
+                    this.bots[i] = this.bots[ii]
+                    this.bots[ii] = temp
+                }
+            }
+        }
+        for (let i=0;i<250;i++) {
+            this.bots.pop()
+        }
+        let goodGen = []
+        for (let i=0;i<this.bots.length;i++) {
+            goodGen.push(this.bots[i].weights)
+        }
+        
+        for (let i=0;i<50;i++) {
+            this.bots.pop()
+        }
+        this.platforms = []
+        for (let i=1;i<4;i++) {
+            let platform = new Platform(this.ctx)
+            platform.y = i*30*5
+            let pfpos = this.avaliablePlatformPos[Math.floor(Math.random()*this.avaliablePlatformPos.length)]
+            while (pfpos == this.lastPlatformPos) {
+                pfpos = this.avaliablePlatformPos[Math.floor(Math.random()*this.avaliablePlatformPos.length)]
+            }
+            this.lastPlatformPos = pfpos
+            platform.x = pfpos
+            this.platforms.push(platform)
+        }
+        for (let i=0;i<goodGen.length;i++) {
+            let player = new Player(this.canvas,this.ctx)
+            player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
+            player.y = this.platforms[2].y - player.height
+            player.weights = goodGen[i]
+            this.bots.push(player)
+        }
+
+        for (let i=0;i<250;i++) {
+            let player = new Player(this.canvas,this.ctx)
+            player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
+            player.y = this.platforms[2].y - player.height
+            this.bots.push(player)
+        }
+        this.i = 0
+        console.log(this.gen)
     }
 
     show() {
@@ -33,9 +88,27 @@ export default class Game {
 
     loop() {
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
+    
+        let allDead = true
+        for (let i=0;i<this.bots.length;i++) {
+            if (this.bots[i].dead == false)[
+                allDead = false
+            ]
+            if (!allDead) break
+        }
+        if (allDead) {
+            this.newGen()
+        }
 
         if (this.i % 30 == 0) {
             let platform = new Platform(this.ctx)
+            
+            let pfpos = this.avaliablePlatformPos[Math.floor(Math.random()*this.avaliablePlatformPos.length)]
+            while (pfpos == this.lastPlatformPos) {
+                pfpos = this.avaliablePlatformPos[Math.floor(Math.random()*this.avaliablePlatformPos.length)]
+            }
+            this.lastPlatformPos = pfpos
+            platform.x = pfpos
             this.platforms.push(platform)
         }
 

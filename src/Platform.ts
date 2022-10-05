@@ -6,6 +6,7 @@ export default class Platform {
     color:string = "#000"
     ctx:CanvasRenderingContext2D
     fallSpeed: number = 5
+    id: number = Math.floor(Math.random()*100000)
 
     constructor(ctx:CanvasRenderingContext2D) {
         this.ctx = ctx
