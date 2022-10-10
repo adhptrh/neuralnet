@@ -17,4 +17,7 @@ window.addEventListener("keydown",(e)=>{
     if (e.code == "KeyZ") {
         game.bots.forEach((v)=>{v.showRaycast = !v.showRaycast})
     }
+    if (e.code == "KeyX") {
+        game.onlyShowBestFit = !game.onlyShowBestFit
+    }
 })

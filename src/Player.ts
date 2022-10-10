@@ -27,6 +27,7 @@ export default class Player {
     bestBot: boolean = false
     showRaycast:boolean = false
     keepedAlive:boolean = false
+    outputNN = "NONE"
     platformDiscovered:Array<Platform> = []
     id:number = Math.floor(Math.random()*(99999-10000))+10000
     
@@ -69,7 +70,7 @@ export default class Player {
                 }
                 if (!found) {
                     this.platformDiscovered.push(platforms[i])
-                    this.fit += 1000
+                    this.fit += 100
                 }
                 if (this.velY > 0) {
                     this.velY = 4
@@ -130,18 +131,23 @@ export default class Player {
         this.neuralNetwork.inputs.push((0-(this.canvas.height/2)+this.y)/(this.canvas.height/2))
 
         let outputId = this.neuralNetwork.calculateOutput()
+        
 
         switch (outputId) {
             case 0:
                 this.jump()
+                this.outputNN = "JUMP"
                 break;
             case 1:
                 this.velX = -15
+                this.outputNN = "LEFT"
                 break;
             case 2:
                 this.velX = 15
+                this.outputNN = "RIGHT"
                 break;
             case 3:
+                this.outputNN = "NONE"
                 break;
         }
 

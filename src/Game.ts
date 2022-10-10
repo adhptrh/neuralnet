@@ -18,6 +18,8 @@ export default class Game {
     lastPlatformPos: number = 0
     trainingMode:boolean = true
     noAnimation:boolean = false
+    genRecord:Array<any> = []
+    onlyShowBestFit: boolean = false
     avaliablePlatformPos: Array<number> = [0,50,100,150,200,250,300,350,400]
     plannedPlatformPos: Array<number> = [400,0,300,400,200,0,400,200,100,200,0,100,300,200,0,300,400,100,300,200,100,200,400,200,0,100,200,300,200,400,300,100,300,0,400,200,100,300,0,200,400,100,0,200,400,300,0,200,300,400,300,100,200,400,300,200,400,0,200,0,100,300,0,400,100,400,300,100,0,200,400,100,200,400,300,400,200,300,200,300,200,0,100,0,100,0,400,100,0,100,400,0,100,400,300,200,400,100,400,0,300,200,400,300,200,400,100,0,300,400,0,100,300,400,200,0,300,0,200,100,400,200,0,100,200,0,300,0,400,200,400,100,200,0,300,100,400,100,300,100,0,100,300,400,100,300,0,200,300,200,400,300,200,0,200,300,0,300,0,400,200,400,200,300,0,400,0,400,100,400,300,0,300,400,200,0,400,300,200,0,100,300,400,200,0,200,0,200,300,0,300,100,300,100,300,100,0,200,300,400,200,0,300,100,0,400,100,200,0,200,0,100,200,400,200,100,0,300,0,300,400,200,300,200,0,400,200,300,200,400,200,0,100,0,400,200,100,300,400,200,100,200,100,300,200,400,300,400,0,300,100,0,200,400,300,100,0,300,200,100,300,0,100,200,100,0,100,0,400,0,200,400,200,300,200,300,400,100,200,100,300,100,300,200,0,300,0,400,0,100,300,0,400,0,400,100,300,100,0,300,0,200,100,200,0,200,300,200,400,200,400,0,400,300,200,300,200,300,100,200,300,100,0,200,300,400,300,100,300,200,300,100,400,300,0,100,0,200,100,400,100,300,400,200,300,400,0,400,200,100,200,0,200,300,400,300,100,0,300,0,200,0,100,400,300,400,0,200,100,300,400,0,300,0,200,300,0,200,300,0,300,0,200,400,300,400,300,200,400,200,100,400,0,100,300,100,400,0,400,200,0,400,200,300,200,300,200,400,100,400,100,400,100,300,100,0,300,100,300,400,200,400,300,100,200,100,0,100,400,100,400,200,0,200,100,300,0,200,100,400,300,100,300,400,300,200,0,100,400,200,0,100,400,0,200,0,400,100,300,0,200,0,200,0,100,300,0,200,0,300,100,300,400,0,100,300,400,300,400,100,200,100,300,200,0,100,400,0,400,100,400,300,400,100,300,100,200,300,100,200]
     plannedPlatformCur = 0
@@ -129,7 +131,6 @@ export default class Game {
             player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
             player.y = this.platforms[2].y - player.height
             player.neuralNetwork.weights = babies[i].neuralNetwork.weights
-            player.isOffspring = true
             this.bots.push(player)
         }
 
@@ -160,7 +161,9 @@ export default class Game {
                     this.bots[ii] = temp
                 }
             }
+            this.bots[i].showRaycast = false
         }
+        this.bots[0].showRaycast = true
 
         this.currentBestFit = this.bots[0].fit
         
@@ -174,6 +177,11 @@ export default class Game {
             }
         }
         if (allDead) {
+            this.genRecord.push({
+                gen:this.gen,
+                fit:this.currentBestFit,
+                color:this.bots[0].color
+            })
             this.newGen()
         }
 
@@ -200,21 +208,39 @@ export default class Game {
         this.renderPlatforms()
         this.renderBots()
         this.ctx.fillStyle = "#000"
-        this.ctx.fillText(`Bots Alive: ${aliveBots.length}`,10,30)
-        this.ctx.fillText(`Gen: ${this.gen}`,10,60)
-        this.ctx.fillText(`Last Best Fit: ${this.lastBestFit}`,10,90)
-        this.ctx.fillText(`Current Best Fit: ${this.currentBestFit}`,10,120)
+        this.ctx.fillText(`Population: ${aliveBots.length}`,10,30)
+        this.ctx.fillText(`Generation: ${this.gen}`,10,60)
 
-        this.ctx.fillText(`LEADERBOARD`,600,30)
+        let maxGenRecord = 0
+        for (let i=0;i<this.genRecord.length;i++) {
+            if (this.genRecord[i].fit > maxGenRecord)[
+                maxGenRecord = this.genRecord[i].fit
+            ]
+        }
 
-        for (let i=0;i<10;i++) {
+        this.ctx.fillText(`Generation`,900,30)
+        if (this.genRecord.length > 0) {
+            let idx = 0
+            for (let i=this.genRecord.length-1;i>this.genRecord.length-1-(this.genRecord.length > 10 ? 10:this.genRecord.length);i--) {
+                this.ctx.fillStyle = this.genRecord[i].color
+                this.ctx.fillRect(900,40 + (idx*30),(this.genRecord[i].fit/maxGenRecord)*300,20)
+                this.ctx.fillText(`Gen: ${this.genRecord[i].gen}, Fitness: ${this.genRecord[i].fit}`,920+((this.genRecord[i].fit/maxGenRecord)*300),58+(idx*30))
+                idx++
+            }
+        } else {
+            this.ctx.fillText(`No data.`,900,58)
+        }
+
+        this.ctx.fillText(`Leaderboard`,600,30)
+
+        for (let i=0;i<(this.bots.length > 10 ? 10:this.bots.length);i++) {
             this.ctx.fillStyle = this.bots[i].color
             this.ctx.fillRect(600,40 + (i*30),20,20)
             this.ctx.fillText(`ID: ${this.bots[i].id}, Fitness: ${this.bots[i].fit}`,630,58+(i*30))
         }
 
         this.ctx.fillStyle = "#000"
-        this.ctx.fillText(`${this.bots[0].id}'s Neural Network`,600,360)
+        this.ctx.fillText(`${this.bots[0].id}'s Neural Network, Output: "${this.bots[0].outputNN}"`,600,360)
         this.ctx.strokeStyle = "#BBB"
         for (let i=0;i<this.bots[0].neuralNetwork.neurons[0].length;i++) {
             for (let ii=0;ii<this.bots[0].neuralNetwork.inputCount;ii++) {
@@ -241,7 +267,7 @@ export default class Game {
 
         this.ctx.strokeStyle = "#000"
         for (let i=0;i<this.bots[0].neuralNetwork.inputCount;i++) {
-            this.ctx.fillStyle = this.bots[0].color
+            this.ctx.fillStyle = "#000"
             this.ctx.beginPath();
             this.ctx.arc(605, 375+(i*14), 5, 0, 2 * Math.PI);
             this.ctx.fill()
@@ -262,9 +288,9 @@ export default class Game {
             }
             for (let ii=0;ii<this.bots[0].neuralNetwork.neuronsLayer[i];ii++) {
                 if (ii == toColor) {
-                    this.ctx.fillStyle = this.bots[0].color
+                    this.ctx.fillStyle = "#000"
                 } else {
-                    this.ctx.fillStyle = "#888"
+                    this.ctx.fillStyle = "#FFF"
                 }
                 this.ctx.beginPath();
                 this.ctx.arc(690+(i*85), 375+(ii*14), 5, 0, 2 * Math.PI);
@@ -296,9 +322,13 @@ export default class Game {
     }
 
     renderBots() {
-        for (let i=0;i<this.bots.length;i++) {
-            if (!this.bots[i].dead){
-                this.bots[i].draw()
+        if (this.onlyShowBestFit) {
+            this.bots[0].draw()
+        } else {
+            for (let i=0;i<this.bots.length;i++) {
+                if (!this.bots[i].dead){
+                    this.bots[i].draw()
+                }
             }
         }
     }

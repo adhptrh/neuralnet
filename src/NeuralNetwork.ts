@@ -2,7 +2,8 @@ import { ActivationFunction, randomFloat } from "./Helper"
 import Neuron from "./Neuron"
 
 export default class NeuralNetwork {
-    neuronsLayer:Array<number> = [16,16,4]
+    neuronsLayer:Array<number> = [8,8,4]
+    mutateRate:number = 20
     neurons:Array<Array<Neuron>> = []
     inputCount:number = 30
     weights:{[key:string]:number} = {}
@@ -26,7 +27,7 @@ export default class NeuralNetwork {
         for (let i=1;i<this.neurons.length;i++) {
             for (let ii=0;ii<this.neurons[i].length;ii++) {
                 for (let iii=0;iii<this.neurons[i-1].length;iii++) {
-                    this.weights[`${i}${ii}${iii}`] = randomFloat(-1,1)
+                    this.weights[`${i*100}${ii}${iii}`] = randomFloat(-1,1)
                 }
             }
         }
@@ -46,7 +47,7 @@ export default class NeuralNetwork {
             for (let ii=0;ii<this.neurons[i].length;ii++) {
                 let output = 0
                 for (let iii=0;iii<this.neurons[i-1].length;iii++) {
-                    output += this.neurons[i-1][iii].output*this.weights[`${i}${ii}${iii}`]
+                    output += this.neurons[i-1][iii].output*this.weights[`${i*100}${ii}${iii}`]
                 }
                 this.neurons[i][ii].output = ActivationFunction.relu(output)
             }
@@ -69,7 +70,7 @@ export default class NeuralNetwork {
     }
 
     mutate() {
-        let pickCount = Math.floor(Math.random()*20)+1
+        let pickCount = Math.floor(Math.random()*this.mutateRate)+1
         for (let i=0;i<pickCount;i++) {
             let randomMutateWeight = Math.floor(Math.random()*Object.keys(this.weights).length)
             this.weights[Object.keys(this.weights).at(randomMutateWeight)] = randomFloat(-1,1)
