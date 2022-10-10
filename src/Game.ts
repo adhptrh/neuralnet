@@ -61,7 +61,7 @@ export default class Game {
             }
         }
     }
-    
+
     newGen() {
         
         this.currentBestFit = 0
@@ -131,17 +131,8 @@ export default class Game {
             player.isOffspring = true
             this.bots.push(player)
         }
-        let gudgen = 0
-        if (goodGen.length > 0) {
-            let player = new Player(this.canvas,this.ctx) 
-            player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
-            player.y = this.platforms[2].y - player.height
-            player.weights = {...goodGen[0].weights}
-            gudgen = 1
-            this.bots.push(player)
-        }
 
-        for (let i=0;i<this.population-babies.length-gudgen;i++) {
+        for (let i=0;i<this.population-babies.length;i++) {
             let player = new Player(this.canvas,this.ctx)
             player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
             player.y = this.platforms[2].y - player.height
