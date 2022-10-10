@@ -9,7 +9,7 @@ export default class Game {
     bots:Array<Player> = []
     platforms:Array<Platform> = []
     i:number = 0
-    gen:number = 0
+    gen:number = 1
     lastBestFit:number = 0
     population:number = 200
     bestSelect:number = 150
@@ -228,7 +228,9 @@ export default class Game {
 
     renderBots() {
         for (let i=0;i<this.bots.length;i++) {
-            this.bots[i].draw()
+            if (!this.bots[i].dead){
+                this.bots[i].draw()
+            }
         }
     }
 

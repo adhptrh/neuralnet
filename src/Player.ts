@@ -29,16 +29,18 @@ export default class Player {
     showRaycast:boolean = false
     keepedAlive:boolean = false
     platformDiscovered:Array<Platform> = []
+    id:number = Math.floor(Math.random()*100000)
     
     constructor(canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D) {
         this.ctx = ctx
         this.canvas = canvas
         this.neuralNetwork = new NeuralNetwork()
-        this.color = `rgb(${randomInt(0,255)},${randomInt(0,255)},${randomInt(0,255)})`
+        this.color = `rgb(${randomInt(0,150)},${randomInt(0,150)},${randomInt(0,150)})`
     }
 
     draw() {
         this.ctx.fillStyle = this.color
+        this.ctx.fillText(`ID: ${this.id}`,this.x,this.y-10)
         this.ctx.fillRect(
             this.x,
             this.y,
