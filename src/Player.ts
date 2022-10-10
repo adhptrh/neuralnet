@@ -1,10 +1,11 @@
+import { checkCollision, getDistanceEncoded } from "./Helper"
 import Neuron from "./Neuron"
 import Platform from "./Platform"
 
-function sigmoidSquash2(n:number) {
+function sigmoidSquash(n:number) {
     return (n>0) ? n:0
 }
-function sigmoidSquash(n:number) {
+function sigmoidSquash2(n:number) {
     return 1/(1+Math.E**-n)
 }
 
@@ -25,15 +26,20 @@ export default class Player {
     height: number = 50
     dead:boolean = false
     onGround:boolean = true
+    isMutan:boolean =false
+    isOffspring:boolean = false
     ctx:CanvasRenderingContext2D
     canvas:HTMLCanvasElement
     i:number = 0
-    inputCount:number = 3
+    inputCount:number = 30
     neuronsLayer:Array<number> = [5,5,4]
     neurons:Array<Array<Neuron>> = []
     weights:{[key:string]:number} = {}
     bruh:Array<string> = ["b","c","d","e"]
     fit: number = 0
+    bestBot: boolean = false
+    showRaycast:boolean = false
+    keepedAlive:boolean = false
     platformDiscovered:Array<Platform> = []
     
     constructor(canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D) {
@@ -62,6 +68,14 @@ export default class Player {
             }
         }
 
+    }
+
+    mutate() {
+        let pickCount = Math.floor(Math.random()*20)+1
+        for (let i=0;i<pickCount;i++) {
+            let randomMutateWeight = Math.floor(Math.random()*Object.keys(this.weights).length)
+            this.weights[Object.keys(this.weights).at(randomMutateWeight)] = randomFloat(-1,1)
+        }
     }
 
     draw() {
@@ -100,7 +114,7 @@ export default class Player {
                 }
                 if (!found) {
                     this.platformDiscovered.push(platforms[i])
-                    this.fit++
+                    this.fit += 1000
                 }
                 if (this.velY > 0) {
                     this.velY = 4
@@ -109,47 +123,87 @@ export default class Player {
                 this.onGround = true
             }
         }
-        
-        let inputs:Array<number> = []
 
-        this.ctx.fillStyle = "#F00"
-        let detector = {
-            x:0,
+        let rectup = {
+            x: 0,
             y:this.y-100,
             width:this.canvas.width,
-            height:100,
+            height:100
         }
 
-        let input2:number = -1
-        let input3:number = -1
-        let input4:number = -1
-        for (let i=0;i<platforms.length;i++) {
-            if (
-                platforms[i].y+platforms[i].height >= detector.y &&
-                platforms[i].y<=detector.y+detector.height
-            ) {
-                input2 = (0-200+platforms[i].x)/200
-            }
-        }
-        inputs.push(input2)
-        inputs.push((-20+(this.velY+21))/20)
-        
-        let detector2 = {
-            x:0,
+        let rectdown = {
+            x: 0,
             y:this.y+this.height,
             width:this.canvas.width,
-            height:50,
+            height:100
+        }
+
+        let dist1 = 0
+        let dist2 = 0
+
+        for (let i=0;i<platforms.length;i++) {
+            if (checkCollision(rectup,platforms[i])) {
+                dist1 = getDistanceEncoded(this,platforms[i])
+            }
         }
 
         for (let i=0;i<platforms.length;i++) {
-            if (
-                platforms[i].y+platforms[i].height >= detector.y &&
-                platforms[i].y<=detector2.y+detector2.height
-            ) {
-                input3 = (0-200+platforms[i].x)/200
+            if (checkCollision(rectdown,platforms[i])) {
+                dist2 = getDistanceEncoded(this,platforms[i])
             }
         }
-        inputs.push(input3)
+
+        
+        let inputs:Array<number> = []
+        //inputs.push(dist1,dist2)
+        inputs.push(this.raycast(platforms,(i:number)=>{
+            return {
+                x:this.x + (this.width/2) - (5/2),
+                y:this.y + (this.height/2) - (i*10),
+            }
+        }))
+        inputs.push(this.raycast(platforms,(i:number)=>{
+            return {
+                x:this.x + (this.width/2) - (5/2),
+                y:this.y + (this.height/2) + (i*10),
+            }
+        }))
+        for (let ij=1;ij<=6;ij++) {
+            inputs.push(this.raycast(platforms,(i:number)=>{
+                return {
+                    x:this.x + (this.width/2) - (5/2) + (i*(2*ij)),
+                    y:this.y + (this.height/2) - (i*10),
+                }
+            }))
+        }
+        for (let ij=1;ij<=6;ij++) {
+            inputs.push(this.raycast(platforms,(i:number)=>{
+                return {
+                    x:this.x + (this.width/2) - (5/2) - (i*(2*ij)),
+                    y:this.y + (this.height/2) - (i*10),
+                }
+            }))
+        }
+        for (let ij=1;ij<=6;ij++) {
+            inputs.push(this.raycast(platforms,(i:number)=>{
+                return {
+                    x:this.x + (this.width/2) - (5/2) + (i*(2*ij)),
+                    y:this.y + (this.height/2) + (i*10),
+                }
+            }))
+        }
+        for (let ij=1;ij<=6;ij++) {
+            inputs.push(this.raycast(platforms,(i:number)=>{
+                return {
+                    x:this.x + (this.width/2) - (5/2) - (i*(2*ij)),
+                    y:this.y + (this.height/2) + (i*10),
+                }
+            }))
+        }
+        inputs.push((0-(61/2)+(this.velY+21))/(61/2))
+        inputs.push(this.onGround ? 1:-1)
+        inputs.push((0-(500/2)+this.x)/(500/2))
+        inputs.push((0-(this.canvas.height/2)+this.y)/(this.canvas.height/2))
 
         for (let i=0;i<this.neurons[0].length;i++) {
             let output = 0
@@ -173,7 +227,6 @@ export default class Player {
         /* this.ctx.fillText(this.neurons[this.neurons.length-1][0].output.toString(),this.x,this.y-50)
         this.ctx.fillText(this.neurons[this.neurons.length-1][1].output.toString(),this.x,this.y-30)
         this.ctx.fillText(this.neurons[this.neurons.length-1][2].output.toString(),this.x,this.y-10) */
-        this.ctx.fillText(this.fit.toString(),this.x,this.y-10)
 
         let best = -1
         let outputId = -1
@@ -207,8 +260,44 @@ export default class Player {
         if (this.y > this.canvas.height) {
             this.dead = true
         }
+        if (!this.dead) {
+            this.fit++
+        }
         this.i++;
-
+    }
+    
+    raycast(platforms: Array<Platform>, getXY:Function) {
+        let dist = 50
+        for (let i=0;i<50;i++) {
+            let res = getXY(i)
+            let node = {
+                x:res.x,
+                y:res.y,
+                width:5,
+                height:5
+            }
+            if (this.showRaycast) {
+                this.ctx.fillStyle = "#888"
+                this.ctx.fillRect(
+                    node.x,
+                    node.y,
+                    node.width,
+                    node.height
+                )
+            }
+            let found = false
+            for (let ii=0;ii<platforms.length;ii++) {
+                if (checkCollision(platforms[ii],node)) {
+                    dist = i
+                    found = true
+                    break
+                }
+            }
+            if (found) {
+                break
+            }
+        }
+        return (0-(50/2)+dist)/(50/2)
     }
 
     gravity() {

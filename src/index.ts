@@ -14,4 +14,7 @@ window.addEventListener("keydown",(e)=>{
     if (e.code == "KeyD") {
         game.bots[0].velX = 15
     }
+    if (e.code == "KeyZ") {
+        game.bots.forEach((v)=>{v.showRaycast = !v.showRaycast})
+    }
 })
