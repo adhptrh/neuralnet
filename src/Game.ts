@@ -17,7 +17,7 @@ export default class Game {
     currentBestFit: number = 0
     lastPlatformPos: number = 0
     trainingMode:boolean = true
-    noAnimation:boolean = true
+    noAnimation:boolean = false
     avaliablePlatformPos: Array<number> = [0,50,100,150,200,250,300,350,400]
     plannedPlatformPos: Array<number> = [400,0,300,400,200,0,400,200,100,200,0,100,300,200,0,300,400,100,300,200,100,200,400,200,0,100,200,300,200,400,300,100,300,0,400,200,100,300,0,200,400,100,0,200,400,300,0,200,300,400,300,100,200,400,300,200,400,0,200,0,100,300,0,400,100,400,300,100,0,200,400,100,200,400,300,400,200,300,200,300,200,0,100,0,100,0,400,100,0,100,400,0,100,400,300,200,400,100,400,0,300,200,400,300,200,400,100,0,300,400,0,100,300,400,200,0,300,0,200,100,400,200,0,100,200,0,300,0,400,200,400,100,200,0,300,100,400,100,300,100,0,100,300,400,100,300,0,200,300,200,400,300,200,0,200,300,0,300,0,400,200,400,200,300,0,400,0,400,100,400,300,0,300,400,200,0,400,300,200,0,100,300,400,200,0,200,0,200,300,0,300,100,300,100,300,100,0,200,300,400,200,0,300,100,0,400,100,200,0,200,0,100,200,400,200,100,0,300,0,300,400,200,300,200,0,400,200,300,200,400,200,0,100,0,400,200,100,300,400,200,100,200,100,300,200,400,300,400,0,300,100,0,200,400,300,100,0,300,200,100,300,0,100,200,100,0,100,0,400,0,200,400,200,300,200,300,400,100,200,100,300,100,300,200,0,300,0,400,0,100,300,0,400,0,400,100,300,100,0,300,0,200,100,200,0,200,300,200,400,200,400,0,400,300,200,300,200,300,100,200,300,100,0,200,300,400,300,100,300,200,300,100,400,300,0,100,0,200,100,400,100,300,400,200,300,400,0,400,200,100,200,0,200,300,400,300,100,0,300,0,200,0,100,400,300,400,0,200,100,300,400,0,300,0,200,300,0,200,300,0,300,0,200,400,300,400,300,200,400,200,100,400,0,100,300,100,400,0,400,200,0,400,200,300,200,300,200,400,100,400,100,400,100,300,100,0,300,100,300,400,200,400,300,100,200,100,0,100,400,100,400,200,0,200,100,300,0,200,100,400,300,100,300,400,300,200,0,100,400,200,0,100,400,0,200,0,400,100,300,0,200,0,200,0,100,300,0,200,0,300,100,300,400,0,100,300,400,300,400,100,200,100,300,200,0,100,400,0,400,100,400,300,400,100,300,100,200,300,100,200]
     plannedPlatformCur = 0
@@ -25,6 +25,7 @@ export default class Game {
         this.canvas.width = window.innerWidth
         this.canvas.height = window.innerHeight
         this.ctx = this.canvas.getContext("2d")
+        this.ctx.font = "20px Arial"
         if (this.noAnimation) {
             this.ctx.fillRect = (...a)=>{}
             this.ctx.fillText = (...a)=>{}
@@ -104,8 +105,8 @@ export default class Game {
         // Cross over and mutate
         for (let i=0;i<goodGen.length-1;i++) {
             let baby = new Player(this.canvas,this.ctx)
-            baby.weights = {...goodGen[0].weights}
-            baby.mutate()
+            baby.neuralNetwork.weights = {...goodGen[0].neuralNetwork.weights}
+            baby.neuralNetwork.mutate()
             babies.push(baby)
         }
 
@@ -127,7 +128,7 @@ export default class Game {
             let player = new Player(this.canvas,this.ctx)
             player.x = this.platforms[2].x + (this.platforms[2].width/2) - (player.width/2)
             player.y = this.platforms[2].y - player.height
-            player.weights = babies[i].weights
+            player.neuralNetwork.weights = babies[i].neuralNetwork.weights
             player.isOffspring = true
             this.bots.push(player)
         }
@@ -190,6 +191,7 @@ export default class Game {
 
         this.renderPlatforms()
         this.renderBots()
+        this.ctx.fillStyle = "#000"
         this.ctx.fillText(`Bots Alive: ${aliveBots.length}`,10,30)
         this.ctx.fillText(`Gen: ${this.gen}`,10,60)
         this.ctx.fillText(`Last Best Fit: ${this.lastBestFit}`,10,90)

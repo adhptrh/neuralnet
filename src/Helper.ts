@@ -1,3 +1,4 @@
+
 function checkCollision(obj1:any, obj2:any) {
     if (
         obj1.x + obj1.width >= obj2.x &&
@@ -14,8 +15,23 @@ function getDistanceEncoded(rect1:any,rect2:any) {
 function randomFloat(min:number,max:number) {
     return Math.random()*(max-min)+min
 }
+function randomInt(min:number,max:number) {
+    return Math.floor(Math.random()*(max-min))+min
+}
+class ActivationFunction {
+    static relu(n:number) {
+        return (n>0) ? n:0
+    }
+
+    static sigmoidSquash(n:number) {
+        return 1/(1+Math.E**-n)
+    }
+    
+}
 export {
     checkCollision,
     randomFloat,
-    getDistanceEncoded
+    getDistanceEncoded,
+    ActivationFunction,
+    randomInt
 }
