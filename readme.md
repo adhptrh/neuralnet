@@ -1,2 +1,2 @@
 # NeuralNet
-learning neural network
+this is best neural network in the world
