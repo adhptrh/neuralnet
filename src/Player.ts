@@ -29,7 +29,7 @@ export default class Player {
     showRaycast:boolean = false
     keepedAlive:boolean = false
     platformDiscovered:Array<Platform> = []
-    id:number = Math.floor(Math.random()*100000)
+    id:number = Math.floor(Math.random()*(99999-10000))+10000
     
     constructor(canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D) {
         this.ctx = ctx

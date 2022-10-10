@@ -152,11 +152,25 @@ export default class Game {
 
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
     
-        for (let i=0;i<this.bots.length;i++) {
-            if (this.bots[i].fit > this.currentBestFit) {
-                this.currentBestFit = this.bots[i].fit
+        for (let i=0;i<this.bots.length-1;i++) {
+            for (let ii=i+1;ii<this.bots.length;ii++) {
+                if (this.bots[ii].fit > this.bots[i].fit) {
+                    let temp = this.bots[i]
+                    this.bots[i] = this.bots[ii]
+                    this.bots[ii] = temp
+                }
             }
         }
+
+        this.currentBestFit = this.bots[0].fit
+        this.ctx.fillText(`LEADERBOARD`,600,30)
+
+        for (let i=0;i<10;i++) {
+            this.ctx.fillStyle = this.bots[i].color
+            this.ctx.fillRect(600,40 + (i*30),20,20)
+            this.ctx.fillText(`ID: ${this.bots[i].id}, Fitness: ${this.bots[i].fit}`,630,58+(i*30))
+        }
+
         let allDead = true
         let aliveBots:Array<Player> = []
         for (let i=0;i<this.bots.length;i++) {
