@@ -163,13 +163,7 @@ export default class Game {
         }
 
         this.currentBestFit = this.bots[0].fit
-        this.ctx.fillText(`LEADERBOARD`,600,30)
-
-        for (let i=0;i<10;i++) {
-            this.ctx.fillStyle = this.bots[i].color
-            this.ctx.fillRect(600,40 + (i*30),20,20)
-            this.ctx.fillText(`ID: ${this.bots[i].id}, Fitness: ${this.bots[i].fit}`,630,58+(i*30))
-        }
+        
 
         let allDead = true
         let aliveBots:Array<Player> = []
@@ -210,6 +204,76 @@ export default class Game {
         this.ctx.fillText(`Gen: ${this.gen}`,10,60)
         this.ctx.fillText(`Last Best Fit: ${this.lastBestFit}`,10,90)
         this.ctx.fillText(`Current Best Fit: ${this.currentBestFit}`,10,120)
+
+        this.ctx.fillText(`LEADERBOARD`,600,30)
+
+        for (let i=0;i<10;i++) {
+            this.ctx.fillStyle = this.bots[i].color
+            this.ctx.fillRect(600,40 + (i*30),20,20)
+            this.ctx.fillText(`ID: ${this.bots[i].id}, Fitness: ${this.bots[i].fit}`,630,58+(i*30))
+        }
+
+        this.ctx.fillStyle = "#000"
+        this.ctx.fillText(`${this.bots[0].id}'s Neural Network`,600,360)
+        this.ctx.strokeStyle = "#BBB"
+        for (let i=0;i<this.bots[0].neuralNetwork.neurons[0].length;i++) {
+            for (let ii=0;ii<this.bots[0].neuralNetwork.inputCount;ii++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(605, 375+(ii*14))
+                this.ctx.lineTo(690,375+(i*14))
+                this.ctx.stroke()
+                this.ctx.closePath()
+            }
+        }
+
+        
+        for (let i=0;i<this.bots[0].neuralNetwork.neuronsLayer.length;i++) {
+            for (let ii=0;ii<this.bots[0].neuralNetwork.neuronsLayer[i];ii++) {
+                for (let iii=0;iii<this.bots[0].neuralNetwork.neuronsLayer[i+1];iii++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(690+(i*85), 375+(ii*14))
+                    this.ctx.lineTo(690+(i*85)+85,375+(iii*14))
+                    this.ctx.stroke()
+                    this.ctx.closePath()
+                }
+            }
+        }
+
+        this.ctx.strokeStyle = "#000"
+        for (let i=0;i<this.bots[0].neuralNetwork.inputCount;i++) {
+            this.ctx.fillStyle = this.bots[0].color
+            this.ctx.beginPath();
+            this.ctx.arc(605, 375+(i*14), 5, 0, 2 * Math.PI);
+            this.ctx.fill()
+            this.ctx.stroke()
+            this.ctx.closePath()
+        }
+
+
+
+        for (let i=0;i<this.bots[0].neuralNetwork.neuronsLayer.length;i++) {
+            let lastOutput = 0
+            let toColor = 0
+            for (let ii=0;ii<this.bots[0].neuralNetwork.neuronsLayer[i];ii++) {
+                if (this.bots[0].neuralNetwork.neurons[i][ii].output > lastOutput) {
+                    lastOutput = this.bots[0].neuralNetwork.neurons[i][ii].output
+                    toColor = ii
+                }
+            }
+            for (let ii=0;ii<this.bots[0].neuralNetwork.neuronsLayer[i];ii++) {
+                if (ii == toColor) {
+                    this.ctx.fillStyle = this.bots[0].color
+                } else {
+                    this.ctx.fillStyle = "#888"
+                }
+                this.ctx.beginPath();
+                this.ctx.arc(690+(i*85), 375+(ii*14), 5, 0, 2 * Math.PI);
+                this.ctx.fill()
+                this.ctx.stroke()
+                this.ctx.closePath()
+            }
+        }
+
         this.i++
         if (this.noAnimation) {
             setTimeout(()=>{this.loop()},0)
@@ -220,15 +284,6 @@ export default class Game {
     }
 
     updateBots(platforms:Array<Platform>) {
-        let bestBotFit = 0
-        for (let i=0;i<this.bots.length;i++) {
-            if (this.bots[i].fit > bestBotFit){
-                this.bots[i].bestBot = true
-                bestBotFit = this.bots[i].fit
-            } else {
-                this.bots[i].bestBot = false
-            }
-        }
         for (let i=0;i<this.bots.length;i++) {
             this.bots[i].update(platforms)
         }

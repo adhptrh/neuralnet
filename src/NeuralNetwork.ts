@@ -2,10 +2,9 @@ import { ActivationFunction, randomFloat } from "./Helper"
 import Neuron from "./Neuron"
 
 export default class NeuralNetwork {
-    neuronsLayer:Array<number> = [5,5,4]
+    neuronsLayer:Array<number> = [16,16,4]
     neurons:Array<Array<Neuron>> = []
     inputCount:number = 30
-    bruh:Array<string> = ["b","c","d","e"]
     weights:{[key:string]:number} = {}
     inputs:Array<number> = []
 
@@ -20,14 +19,14 @@ export default class NeuralNetwork {
 
         for (let i=0;i<this.neurons[0].length;i++) {
             for (let ii=0;ii<this.inputCount;ii++) {
-                this.weights[`a${i}${ii}`] = randomFloat(-1,1)
+                this.weights[`0${i}${ii}`] = randomFloat(-1,1)
             }
         }
         
         for (let i=1;i<this.neurons.length;i++) {
             for (let ii=0;ii<this.neurons[i].length;ii++) {
                 for (let iii=0;iii<this.neurons[i-1].length;iii++) {
-                    this.weights[`${this.bruh[i]}${ii}${iii}`] = randomFloat(-1,1)
+                    this.weights[`${i}${ii}${iii}`] = randomFloat(-1,1)
                 }
             }
         }
@@ -37,7 +36,7 @@ export default class NeuralNetwork {
         for (let i=0;i<this.neurons[0].length;i++) {
             let output = 0
             for (let ii=0;ii<this.inputs.length;ii++) {
-                output += this.inputs[ii]*this.weights[`a${i}${ii}`]
+                output += this.inputs[ii]*this.weights[`0${i}${ii}`]
             }
             output = ActivationFunction.relu(output)
             this.neurons[0][i].output = output
@@ -47,7 +46,7 @@ export default class NeuralNetwork {
             for (let ii=0;ii<this.neurons[i].length;ii++) {
                 let output = 0
                 for (let iii=0;iii<this.neurons[i-1].length;iii++) {
-                    output += this.neurons[i-1][iii].output*this.weights[`${this.bruh[i]}${ii}${iii}`]
+                    output += this.neurons[i-1][iii].output*this.weights[`${i}${ii}${iii}`]
                 }
                 this.neurons[i][ii].output = ActivationFunction.relu(output)
             }

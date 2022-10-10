@@ -23,7 +23,6 @@ export default class Player {
     i:number = 0
     inputCount:number = 30
     neuralNetwork:NeuralNetwork
-    bruh:Array<string> = ["b","c","d","e"]
     fit: number = 0
     bestBot: boolean = false
     showRaycast:boolean = false
