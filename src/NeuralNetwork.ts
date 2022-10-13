@@ -2,7 +2,7 @@ import { ActivationFunction, randomFloat } from "./Helper"
 import Neuron from "./Neuron"
 
 export default class NeuralNetwork {
-    neuronsLayer:Array<number> = [8,10,8,4]
+    neuronsLayer:Array<number> = [8,8,4]
     mutateRate:number = 20
     neurons:Array<Array<Neuron>> = []
     inputCount:number = 30

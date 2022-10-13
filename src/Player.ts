@@ -28,7 +28,7 @@ export default class Player {
     showRaycast:boolean = false
     keepedAlive:boolean = false
     outputNN = "NONE"
-    platformDiscovered:Array<Platform> = []
+    platformDiscovered:Array<number> = []
     id:number = Math.floor(Math.random()*(99999-10000))+10000
     
     constructor(canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D) {
@@ -64,12 +64,12 @@ export default class Player {
             if (checkCollision(this,platforms[i])) {
                 let found = false
                 for (let ii=0;ii<this.platformDiscovered.length;ii++) {
-                    if (this.platformDiscovered[ii].id == platforms[i].id) {
+                    if (this.platformDiscovered[ii] == platforms[i].id) {
                         found = true
                     }
                 }
                 if (!found) {
-                    this.platformDiscovered.push(platforms[i])
+                    this.platformDiscovered.push(platforms[i].id)
                     this.fit += 100
                 }
                 if (this.velY > 0) {

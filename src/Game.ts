@@ -304,7 +304,7 @@ export default class Game {
         if (this.noAnimation) {
             setTimeout(()=>{this.loop()},0)
         } else {
-            requestAnimationFrame(()=>{this.loop()})
+            setTimeout(()=>{this.loop()},16.6)
         }
         
     }
